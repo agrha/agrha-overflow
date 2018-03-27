@@ -1,39 +1,43 @@
 const jwt = require ('jsonwebtoken')
 
 class Auth {
-  static admin(req,res,next){
+  static login(req,res,next){
     let token = req.headers.token
-    console.log(token)
-    jwt.verify(token,'secret key',(err,decoded)=>{
-      if(decoded){
-        if(decoded.role === 'admin'){
-          next()
-        } else {
-          res.status(403).json({
-            message:'kamu bukan admin'
-          })
-        }
-      } else {
+    jwt.verify(token, 'secret key', (err, decoded) => {
+      if(err){
         res.status(403).json({
-          message: 'kamu belum login'
+          message: 'acces denied'
         })
+      }else{
+        req.decoded = decoded
+        next()
       }
     })
   }
 
+  static admin(req,res,next){
+    if(req.decoded && req.decoded.role === 'admin') {
+      return next()
+    } else {
+      res.status(403).json({
+        message : 'you must an admin to access this page'
+      })
+    }
+  }
+
   static user(req,res,next){
-    let token = req.headers.token
-    jwt.verify(token,'secret key',(err,decoded)=>{
-      if(decoded){
-        if(decoded.id == req.params.id || decoded.role == 'admin'){
-          next()
-        } else {
-          res.status(403).json({
-            message: 'you are not authorized user'
-          })
-        }
-      }
-    })
+    if (!req.decoded.id) {
+      return res.status(403).json({
+        message: 'access denied'
+      })
+    }
+    if(req.decoded.id == req.params.id || req.decoded.role == 'admin') {
+      return next()
+    } else {
+      res.status(403).json({
+        message: 'you not authorize to this user'
+      })
+    }
   }
 }
 

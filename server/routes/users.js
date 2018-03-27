@@ -5,10 +5,10 @@ const Auth = require ('../middleware/auth')
 
 /* GET users listing. */
 router.get('/',User.viewAll)
-router.post('/',Auth.admin,User.createAdmin)
+router.post('/admin',Auth.login,Auth.admin,User.createAdmin)
 router.post('/signup',User.signup)
 router.post('/signin',User.signin)
-router.put('/:id',Auth.user,User.update)
-router.delete('/:id',Auth.admin,User.delete)
+router.put('/:id',Auth.login,Auth.user,User.update)
+router.delete('/:id',Auth.login,Auth.user,User.delete)
 
 module.exports = router
